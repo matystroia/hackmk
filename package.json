@@ -1,0 +1,17 @@
+{
+  "name": "hackmk",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "everyauth": "^0.4.9",
+    "express": "^4.16.3",
+    "fbgraph": "^1.4.4",
+    "npm": "^5.8.0"
+  }
+}
