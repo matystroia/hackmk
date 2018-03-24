@@ -16,28 +16,36 @@ function getFriends(profileId) {
 
 function getPostsStatsRecursive(page, posts, resolve, reactionPromises) {
     graph.get(page, function (err, res) {
-        res.data.forEach(function (post) {
-            if ('comments' in post) {
-                let commentCount = post.comments.summary.total_count;
-                let shareCount = ('shares' in post) ? post.shares.count : 0;
-
-                posts[post.id] = {};
-                posts[post.id].commentCount = commentCount;
-                posts[post.id].shareCount = shareCount;
-
-                reactionPromises.push(getPostReactions(post.id, posts[post.id]));
-            }
-            else
-                console.log('Error at post ' + post.id);
-        });
-
-        if (res.paging && res.paging.next)
-            getPostsStatsRecursive(res.paging.next, posts, resolve, reactionPromises);
-        else {
-            console.log(posts);
+        if ('error' in res) {
             Promise.all(reactionPromises).then(function () {
+                console.log(posts);
                 resolve(posts);
             });
+        }
+        else {
+            res.data.forEach(function (post) {
+                if ('comments' in post) {
+                    let commentCount = post.comments.summary.total_count;
+                    let shareCount = ('shares' in post) ? post.shares.count : 0;
+
+                    posts[post.id] = {};
+                    posts[post.id].commentCount = commentCount;
+                    posts[post.id].shareCount = shareCount;
+
+                    reactionPromises.push(getPostReactions(post.id, posts[post.id]));
+                }
+                else
+                    console.log('Error at post ' + post.id);
+            });
+
+            if (res.paging && res.paging.next)
+                getPostsStatsRecursive(res.paging.next, posts, resolve, reactionPromises);
+            else {
+                Promise.all(reactionPromises).then(function () {
+                    console.log(posts);
+                    resolve(posts);
+                });
+            }
         }
     });
 }
@@ -46,7 +54,7 @@ function getPostsStats(profileId) {
     return new Promise(function (resolve) {
         let posts = {};
         let reactionPromises = [];
-        getPostsStatsRecursive(profileId + '/feed?fields=shares,comments.summary(true).filter(stream).limit(0)', posts, resolve, reactionPromises);
+        getPostsStatsRecursive('me/feed?fields=shares,comments.summary(true).filter(stream).limit(0)', posts, resolve, reactionPromises);
     });
 }
 
