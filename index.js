@@ -17,6 +17,7 @@ function getFriends(profileId) {
 function getPostsStatsRecursive(page, posts, resolve, reactionPromises) {
     graph.get(page, function (err, res) {
         if ('error' in res) {
+            console.log(res);
             Promise.all(reactionPromises).then(function () {
                 console.log(posts);
                 resolve(posts);
@@ -54,7 +55,7 @@ function getPostsStats(profileId) {
     return new Promise(function (resolve) {
         let posts = {};
         let reactionPromises = [];
-        getPostsStatsRecursive('me/feed?fields=shares,comments.summary(true).filter(stream).limit(0)', posts, resolve, reactionPromises);
+        getPostsStatsRecursive('me/feed?fields=shares,comments.summary(true).limit(0)', posts, resolve, reactionPromises);
     });
 }
 
@@ -165,7 +166,7 @@ app.get('/',
     });
 
 app.get('/auth/facebook',
-    passport.authenticate('facebook', {scope: ['user_posts', 'user_friends']}));
+    passport.authenticate('facebook', {scope: ['user_posts', 'user_friends', 'user_photos', 'user_tagged_places', 'user_events', 'publish_actions']}));
 
 app.get('/auth/facebook/callback',
     passport.authenticate('facebook', {
